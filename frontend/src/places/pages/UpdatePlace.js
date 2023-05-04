@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
+import Card from "../../shared/components/UIElements/Card";
 import {
     VALIDATOR_REQUIRE,
     VALIDATOR_MINLENGTH,
@@ -42,24 +43,42 @@ const DUMMY_PLACE = [
 ];
 
 function UpdatePlace() {
+    const [isLoading, setIsLoading] = useState(true);
     const placeId = useParams().placeId;
 
-    const identtifiedPlace = DUMMY_PLACE.find((p) => p.id === placeId);
-
-    const [formState, inputHandler] = useForm(
+    const [formState, inputHandler, setFormData] = useForm(
         {
             title: {
-                value: identtifiedPlace.title,
-                isValid: true,
+                value: "",
+                isValid: false,
             },
             description: {
-                value: identtifiedPlace.description,
-                isValid: true,
+                value: "",
+                isValid: false,
             },
         },
-        true
+        false
     );
 
+    const identtifiedPlace = DUMMY_PLACE.find((p) => p.id === placeId);
+    useEffect(() => {
+        if (identtifiedPlace) {
+            setFormData(
+                {
+                    title: {
+                        value: identtifiedPlace.title,
+                        isValid: true,
+                    },
+                    description: {
+                        value: identtifiedPlace.description,
+                        isValid: true,
+                    },
+                },
+                true
+            );
+        }
+        setIsLoading(false);
+    }, [setFormData, identtifiedPlace]);
     const placeSubmitHandler = (event) => {
         event.preventDefault();
         console.log(formState.inputs); //send this to the backend!
@@ -68,11 +87,19 @@ function UpdatePlace() {
     if (!identtifiedPlace) {
         return (
             <div className="center">
-                <h2>Cound not find place!</h2>
+                <Card>
+                    <h2>Cound not find place!</h2>
+                </Card>
             </div>
         );
     }
-
+    if (isLoading) {
+        return (
+            <div className="center">
+                <h2>Loading</h2>
+            </div>
+        );
+    }
     return (
         <form className="place-form" onSubmit={placeSubmitHandler}>
             <Input
