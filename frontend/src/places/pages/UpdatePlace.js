@@ -60,6 +60,11 @@ function UpdatePlace() {
         true
     );
 
+    const placeSubmitHandler = (event) => {
+        event.preventDefault();
+        console.log(formState.inputs); //send this to the backend!
+    };
+
     if (!identtifiedPlace) {
         return (
             <div className="center">
@@ -69,7 +74,7 @@ function UpdatePlace() {
     }
 
     return (
-        <form className="place-form">
+        <form className="place-form" onSubmit={placeSubmitHandler}>
             <Input
                 id="Title"
                 element="input"
@@ -91,7 +96,7 @@ function UpdatePlace() {
                 initialValue={formState.inputs.description.value}
                 initialValid={formState.inputs.description.isValid}
             />
-            <Button type="submit" disabled={true}>
+            <Button type="submit" disabled={!formState.isValid}>
                 UPDATE PLACE
             </Button>
         </form>
