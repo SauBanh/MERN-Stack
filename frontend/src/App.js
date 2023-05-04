@@ -10,6 +10,7 @@ import Users from "./user/pages/Users";
 import NewPlace from "./places/pages/NewPlace";
 import RootLayout from "./RootLayout";
 import UserPlaces from "./places/pages/UserPlaces";
+import UpdatePlace from "./places/pages/UpdatePlace";
 
 const router = createBrowserRouter([
     {
@@ -18,9 +19,9 @@ const router = createBrowserRouter([
         // errorElement: <Error />,
         children: [
             { index: true, path: "", element: <Users /> },
-            { path: "/places/new", element: <NewPlace /> },
             { path: "/:userId/places", element: <UserPlaces /> },
-            // { path: '/products/:productId', element: <ProductDetail /> },
+            { path: "/places/new", element: <NewPlace /> },
+            { path: "/places/:placeId", element: <UpdatePlace /> },
         ],
     },
 ]);
