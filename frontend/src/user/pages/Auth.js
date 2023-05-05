@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { useNavigate, Navigate } from "react-router-dom";
 
 import Card from "../../shared/components/UIElements/Card";
 import Input from "../../shared/components/FormElements/Input";
@@ -9,10 +10,15 @@ import {
     VALIDATOR_REQUIRE,
 } from "../../shared/util/validators";
 import { useForm } from "../../shared/hooks/form-hook";
+import { AuthContext } from "../../shared/context/auth-context";
 
 import "./Auth.css";
 
 function Auth() {
+    const navigate = useNavigate();
+    const auth = useContext(AuthContext);
+
+    console.log(auth.isLoggedIn);
     const [isLoginModal, setIsLoginModal] = useState(true);
     const [formState, inputHandler, setFormData] = useForm(
         {
@@ -56,7 +62,13 @@ function Auth() {
     const authSubmitHandler = (event) => {
         event.preventDefault();
         console.log(formState.inputs);
+        auth.login();
+        navigate("/");
     };
+    if (auth.isLoggedIn) {
+        return <Navigate to="/" />;
+    }
+
     return (
         <Card className="authentication">
             <h2>{isLoginModal ? "Login Required" : "Signup Required"}</h2>

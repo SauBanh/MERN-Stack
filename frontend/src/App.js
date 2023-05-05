@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 
@@ -10,20 +10,20 @@ import UpdatePlace from "./places/pages/UpdatePlace";
 import Auth from "./user/pages/Auth";
 import { AuthContext } from "./shared/context/auth-context";
 
-const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <RootLayout />,
-        // errorElement: <Error />,
-        children: [
-            { index: true, path: "", element: <Users /> },
-            { path: "/:userId/places", element: <UserPlaces /> },
-            { path: "/places/new", element: <NewPlace /> },
-            { path: "/places/:placeId", element: <UpdatePlace /> },
-            { path: "/auth", element: <Auth /> },
-        ],
-    },
-]);
+// const router = createBrowserRouter([
+//     {
+//         path: "/",
+//         element: <RootLayout />,
+//         // errorElement: <Error />,
+//         children: [
+//             { index: true, path: "", element: <Users /> },
+//             { path: ":userId/places", element: <UserPlaces /> },
+//             { path: "places/new", element: <NewPlace /> },
+//             { path: "places/:placeId", element: <UpdatePlace /> },
+//             { path: "auth", element: <Auth /> },
+//         ],
+//     },
+// ]);
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -33,6 +33,39 @@ function App() {
     const logout = useCallback(() => {
         setIsLoggedIn(false);
     }, []);
+
+    let routes;
+
+    if (isLoggedIn) {
+        routes = [
+            {
+                path: "/",
+                element: <RootLayout />,
+                children: [
+                    { index: true, path: "", element: <Users /> },
+                    { path: ":userId/places", element: <UserPlaces /> },
+                    { path: "places/new", element: <NewPlace /> },
+                    { path: "places/:placeId", element: <UpdatePlace /> },
+                    { path: "auth", element: <Auth /> },
+                ],
+            },
+        ];
+    } else {
+        routes = [
+            {
+                path: "/",
+                element: <RootLayout />,
+                children: [
+                    { index: true, path: "", element: <Users /> },
+                    { path: ":userId/places", element: <UserPlaces /> },
+                    { path: "auth", element: <Auth /> },
+                ],
+            },
+        ];
+    }
+
+    const router = createBrowserRouter(routes);
+
     return (
         <AuthContext.Provider
             value={{ isLoggedIn: isLoggedIn, login: login, logout: logout }}
