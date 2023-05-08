@@ -66,10 +66,8 @@ const signup = async (req, res, next) => {
 const login = async (req, res, next) => {
     const error = validationResult(req);
     if (!error.isEmpty()) {
-        console.log(error);
-        throw new HttpError(
-            "Invalid input passed, please check your data",
-            422
+        return next(
+            new HttpError("Invalid input passed, please check your data", 422)
         );
     }
     const { email, password } = req.body;

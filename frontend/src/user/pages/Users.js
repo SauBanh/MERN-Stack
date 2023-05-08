@@ -1,17 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import UserList from "../components/UserLists";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 const Users = () => {
-    const USERS = [
-        {
-            id: "u1",
-            name: "Nguyễn Tuấn Anh",
-            image: "https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/274217740_469277344689956_4712296035433322684_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=174925&_nc_ohc=rwUOlKlzrKcAX-PS3LM&_nc_ht=scontent.fsgn5-10.fna&oh=00_AfAcHfFlkk_7egKxp2OrP8zuOG24w-vFNtSs8Ths75MSLA&oe=645B9F25",
-            places: 3,
-        },
-    ];
-    return <UserList items={USERS} />;
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState();
+    const [loadedUser, setLoadedUser] = useState(false);
+    useEffect(() => {
+        const sendRequest = async () => {
+            setIsLoading(true);
+            try {
+                const response = await fetch("http://localhost:5000/api/users");
+                const responseData = await response.json();
+                if (!response.ok) {
+                    throw new Error(responseData.message);
+                }
+                setLoadedUser(responseData.users);
+                console.log(loadedUser);
+            } catch (err) {
+                setError(err.message);
+            }
+            setIsLoading(false);
+        };
+        sendRequest();
+    }, []);
+    const errorHandler = () => {
+        setError(null);
+    };
+    return (
+        <React.Fragment>
+            <ErrorModal error={error} onClear={errorHandler} />
+            {isLoading && (
+                <div className="center">
+                    <LoadingSpinner />
+                </div>
+            )}
+            {!isLoading && loadedUser && <UserList items={loadedUser} />}
+        </React.Fragment>
+    );
 };
 
 export default Users;
