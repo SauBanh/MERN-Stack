@@ -7,20 +7,6 @@ const getCoordsForAddress = require("../util/location");
 const Place = require("../models/place");
 const User = require("../models/user");
 
-let DUMMY_PLACES = [
-    {
-        id: "p1",
-        title: "Tất niên cuối năm",
-        description: "Tất niên cuối năm tại nhà Tuấn Anh đẹp trai",
-        location: {
-            lat: 10.888005,
-            lng: 106.645651,
-        },
-        address: "Le Van Khuong Quan 12 HCM",
-        creator: "u1",
-    },
-];
-
 const getPlaceById = async (req, res, next) => {
     const placeId = req.params.pid;
     let place;
@@ -48,10 +34,12 @@ const getPlaceById = async (req, res, next) => {
 const getPlacesByUserId = async (req, res, next) => {
     const userId = req.params.uid;
 
-    let places;
+    // let places;
+    let userWithPlaces;
 
     try {
-        places = await Place.find({ creator: userId });
+        // userWithPlaces = await Place.find({ creator: userId });
+        userWithPlaces = await User.findById(userId).populate("places");
     } catch (err) {
         const error = new HttpError(
             "Fetching places failed, please try again later.",
@@ -59,7 +47,8 @@ const getPlacesByUserId = async (req, res, next) => {
         );
         return next(error);
     }
-    if (!places || places.length === 0) {
+    console.log("userWithPlaces: ~~~~~~~~~~~~~~~~~~~~~", userWithPlaces);
+    if (!userWithPlaces || userWithPlaces.length === 0) {
         return next(
             new HttpError(
                 "Could not find a place for the provided user id.",
@@ -68,7 +57,9 @@ const getPlacesByUserId = async (req, res, next) => {
         );
     }
     res.json({
-        places: places.map((place) => place.toObject({ getters: true })),
+        places: userWithPlaces.places.map((place) =>
+            place.toObject({ getters: true })
+        ),
     });
 };
 

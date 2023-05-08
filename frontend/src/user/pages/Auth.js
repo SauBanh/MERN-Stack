@@ -18,7 +18,7 @@ function Auth() {
     const navigate = useNavigate();
     const auth = useContext(AuthContext);
 
-    console.log(auth.isLoggedIn);
+    // console.log(auth.isLoggedIn);
     const [isLoginModal, setIsLoginModal] = useState(true);
     const [formState, inputHandler, setFormData] = useForm(
         {
@@ -59,9 +59,30 @@ function Auth() {
         setIsLoginModal((prevMode) => !prevMode);
     };
 
-    const authSubmitHandler = (event) => {
+    const authSubmitHandler = async (event) => {
         event.preventDefault();
-        console.log(formState.inputs);
+        if (isLoginModal) {
+        } else {
+            try {
+                const response = await fetch(
+                    "http://localhost:5000/api/users/signup",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            name: formState.inputs.name.value,
+                            email: formState.inputs.email.value,
+                            password: formState.inputs.passWord.value,
+                        }),
+                    }
+                );
+                const responseData = await response.json();
+                console.log(responseData);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        // console.log(formState.inputs);
         auth.login();
         navigate("/");
     };
@@ -110,7 +131,7 @@ function Auth() {
                 </Button>
             </form>
             <Button inverse onClick={switchModeHandler}>
-                Switch to {!isLoginModal ? "Signup" : "Login"}
+                Switch to {isLoginModal ? "Signup" : "Login"}
             </Button>
         </Card>
     );
