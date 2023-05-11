@@ -92,7 +92,10 @@ const login = async (req, res, next) => {
         return next(error);
     }
 
-    res.json({ mesage: "logged in!" });
+    res.json({
+        mesage: "logged in!",
+        user: existingUser.toObject({ getters: true }),
+    });
 };
 
 exports.getUsers = getUsers;
