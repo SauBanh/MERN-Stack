@@ -47,7 +47,6 @@ const getPlacesByUserId = async (req, res, next) => {
         );
         return next(error);
     }
-    console.log("userWithPlaces: ~~~~~~~~~~~~~~~~~~~~~", userWithPlaces);
     if (!userWithPlaces || userWithPlaces.length === 0) {
         return next(
             new HttpError(

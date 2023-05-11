@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
@@ -14,9 +15,9 @@ import { useHttpClient } from "../../shared/hooks/http-hook";
 import { AuthContext } from "../../shared/context/auth-context";
 
 import "./PlaceForm.css";
-import { redirect } from "react-router-dom";
 
 const NewPlace = () => {
+    const navigate = useNavigate();
     const auth = useContext(AuthContext);
     const { isLoading, error, sendRequest, clearError } = useHttpClient();
     const [formState, inputHandler] = useForm(
@@ -39,7 +40,6 @@ const NewPlace = () => {
 
     const placeSubmitHandler = async (event) => {
         event.preventDefault();
-        console.log(formState.inputs); //send this to the backend!
         try {
             await sendRequest(
                 "http://localhost:5000/api/places",
@@ -53,7 +53,7 @@ const NewPlace = () => {
                 { "Content-Type": "application/json" }
                 // redirect the user to different page
             );
-            redirect("/");
+            navigate("/");
         } catch (err) {}
     };
 
