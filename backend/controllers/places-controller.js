@@ -1,4 +1,5 @@
-const uuid = require("uuid");
+const fs = require("fs");
+
 const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 
@@ -71,20 +72,23 @@ const createPlace = async (req, res, next) => {
     }
     const { title, description, address, creator } = req.body;
 
-    let coordinates;
-    try {
-        coordinates = await getCoordsForAddress(address);
-    } catch (error) {
-        console.log("coordinates error", error);
-        return next(error);
-    }
+    // let coordinates;
+    // try {
+    //     coordinates = await getCoordsForAddress(address);
+    // } catch (error) {
+    //     console.log("coordinates error", error);
+    //     return next(error);
+    // }
 
     const createdPlace = new Place({
         title,
         description,
         address,
-        location: coordinates, //change again coordinates
-        image: "https://scontent.fsgn5-2.fna.fbcdn.net/v/t39.30808-6/259741744_416359749981716_3280018264072678351_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=19026a&_nc_ohc=gy1_T0v9BqcAX-bBirH&_nc_ht=scontent.fsgn5-2.fna&oh=00_AfBL-kQ6ljPV3A_0wTRhnQpMbmE04l8iSsq8tDJsHKpKnA&oe=645B55E4",
+        location: {
+            lat: 10.8550427,
+            lng: 106.785373,
+        }, //change again coordinates
+        image: req.file.path,
         creator,
     });
 
@@ -146,7 +150,7 @@ const updatePlaceById = async (req, res, next) => {
     place.title = title;
     place.description = description;
     try {
-        await place.wwwwwwwwwwwwwwwwwwwwwww();
+        await place.save();
     } catch (err) {
         const error = new HttpError(
             "Some thing went wrong, could not update place.",
@@ -159,7 +163,6 @@ const updatePlaceById = async (req, res, next) => {
 
 const deletePlaceById = async (req, res, next) => {
     const placeId = req.params.pid;
-    console.log(placeId);
     let place;
     try {
         place = await Place.findById(placeId).populate("creator");
@@ -171,12 +174,12 @@ const deletePlaceById = async (req, res, next) => {
         return next(error);
     }
 
-    console.log(place);
-
     if (!place) {
         const error = new HttpError("Cound not find place for this id.", 404);
         return next(error);
     }
+
+    const imagePath = place.image;
 
     try {
         const sess = await mongoose.startSession();
@@ -186,13 +189,17 @@ const deletePlaceById = async (req, res, next) => {
         await place.creator.save({ session: sess });
         await sess.commitTransaction();
     } catch (err) {
-        console.log(err);
         const error = new HttpError(
             "Some thing went wrong, could not delete place.",
             500
         );
         return next(error);
     }
+
+    fs.unlink(imagePath, (err) => {
+        console.log(err);
+    });
+
     res.status(200).json({ message: "Deleted place." });
 };
 

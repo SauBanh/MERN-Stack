@@ -1,5 +1,6 @@
-const uuid = require("uuid");
 const { validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
@@ -44,23 +45,47 @@ const signup = async (req, res, next) => {
         );
         return next(error);
     }
+
+    let hashedPassword;
+    try {
+        hashedPassword = bcrypt.hash(password, 12);
+    } catch (err) {
+        const error = new HttpError(
+            "Could not create user, please try again",
+            500
+        );
+        return next(error);
+    }
+
     const createdNewUser = new User({
         name,
         email,
         image: req.file.path,
-        password,
+        password: hashedPassword,
         places: [],
     });
     try {
         await createdNewUser.save();
     } catch (err) {
-        const error = new HttpError(
-            "Siging Up failed, please try again 123.",
-            500
-        );
+        const error = new HttpError("Siging Up failed, please try again.", 500);
         return next(error);
     }
-    res.status(201).json({ user: createdNewUser.toObject({ getters: true }) });
+    let token;
+    try {
+        token = jwt.signup(
+            { userId: createdNewUser.id, email: createdNewUser.email },
+            "supersecret_dont_share",
+            { expires: "1h" }
+        );
+    } catch (err) {
+        const error = new HttpError("Siging Up failed, please try again.", 500);
+        return next(error);
+    }
+    res.status(201).json({
+        userId: createdNewUser.id,
+        email: createdNewUser.email,
+        token,
+    });
 };
 
 const login = async (req, res, next) => {
@@ -87,14 +112,43 @@ const login = async (req, res, next) => {
         const error = new HttpError("User does not exist!", 500);
         return next(error);
     }
-    if (existingUser.password !== password) {
+
+    let isValidPassword = false;
+
+    try {
+        isValidPassword = await bcrypt.compare(password, existingUser.password);
+    } catch (err) {
+        const error = new HttpError(
+            "Cound not log you in, please check your credentials and try again",
+            500
+        );
+        return next(error);
+    }
+
+    if (!isValidPassword) {
         const error = new HttpError("Wrong password, please try again!", 401);
         return next(error);
     }
 
+    let token;
+    try {
+        token = jwt.signup(
+            { userId: existingUser.id, email: existingUser.email },
+            "supersecret_dont_share",
+            { expires: "1h" }
+        );
+    } catch (err) {
+        const error = new HttpError(
+            "Logging in failed, please try again.",
+            500
+        );
+        return next(error);
+    }
+
     res.json({
-        mesage: "logged in!",
-        user: existingUser.toObject({ getters: true }),
+        userId: existingUser.id,
+        email: existingUser.email,
+        token,
     });
 };
 
