@@ -147,6 +147,13 @@ const updatePlaceById = async (req, res, next) => {
         );
         return next(error);
     }
+    if (place.creator.toString() !== req.userData.userId) {
+        const error = new HttpError(
+            "You are not allowed to edit this place.",
+            403 //401 là chưa có thông tin đăng nhập
+        );
+        return next(error);
+    }
     place.title = title;
     place.description = description;
     try {
@@ -176,6 +183,14 @@ const deletePlaceById = async (req, res, next) => {
 
     if (!place) {
         const error = new HttpError("Cound not find place for this id.", 404);
+        return next(error);
+    }
+
+    if (place.creator.id !== req.userData.userId) {
+        const error = new HttpError(
+            "You are not allowed to edit this place.",
+            403 //403 là đã xác thực nhưng không có quyền action hành động này
+        );
         return next(error);
     }
 

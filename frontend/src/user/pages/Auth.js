@@ -84,7 +84,7 @@ function Auth() {
                     }),
                     { "Content-Type": "application/json" }
                 );
-                auth.login(responseData.user.id);
+                auth.login(responseData.userId, responseData.token);
             } catch (error) {}
         } else {
             try {
@@ -99,8 +99,8 @@ function Auth() {
                     "POST",
                     formData
                 );
-                console.log(formData);
-                auth.login(responseData.user.id);
+                auth.login(responseData.userId, responseData.token);
+                setIsLoginModal(true);
             } catch (err) {}
         }
         // console.log(formState.inputs);

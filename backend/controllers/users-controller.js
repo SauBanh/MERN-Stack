@@ -48,7 +48,7 @@ const signup = async (req, res, next) => {
 
     let hashedPassword;
     try {
-        hashedPassword = bcrypt.hash(password, 12);
+        hashedPassword = await bcrypt.hash(password, 12);
     } catch (err) {
         const error = new HttpError(
             "Could not create user, please try again",
@@ -67,17 +67,19 @@ const signup = async (req, res, next) => {
     try {
         await createdNewUser.save();
     } catch (err) {
+        console.error(err);
         const error = new HttpError("Siging Up failed, please try again.", 500);
         return next(error);
     }
     let token;
     try {
-        token = jwt.signup(
+        jwt.token = jwt.sign(
             { userId: createdNewUser.id, email: createdNewUser.email },
             "supersecret_dont_share",
-            { expires: "1h" }
+            { expiresIn: "1h" }
         );
     } catch (err) {
+        console.error(err);
         const error = new HttpError("Siging Up failed, please try again.", 500);
         return next(error);
     }
@@ -132,12 +134,13 @@ const login = async (req, res, next) => {
 
     let token;
     try {
-        token = jwt.signup(
+        token = jwt.sign(
             { userId: existingUser.id, email: existingUser.email },
             "supersecret_dont_share",
-            { expires: "1h" }
+            { expiresIn: "1h" }
         );
     } catch (err) {
+        console.error(err);
         const error = new HttpError(
             "Logging in failed, please try again.",
             500
