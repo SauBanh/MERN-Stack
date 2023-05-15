@@ -4,6 +4,12 @@
         "DB_PASSWORD": "w2f9JPgONIOn6idn",
         "DB_NAME": "mern",
         "GOOGLE_API_KEY": "AIzaSyAldu4OadKIePUG_q_F9yx-8_NnNEHqtEU",
-        "JWT_KEY": "supersecret_dont_share"
+        "JWT_KEY": "supersecret_dont_share",
+        "APIKEY": "AIzaSyDsOI19qlEzc43cCMAMkkSqMStJbMONFKc",
+        "AUTHDOMAIN": "dataimage-cc18a.firebaseapp.com",
+        "PROJECTID": "dataimage-cc18a",
+        "STORAGE_BUCKET": "dataimage-cc18a.appspot.com",
+        "MESAGING_SENDERID": "819071307515",
+        "APPID": "1:819071307515:web:a0139f85f00ecee5a16a5e"
     }
 }

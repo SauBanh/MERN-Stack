@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { uploadFirebase } = require("../middleware/file-upload");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
@@ -56,11 +57,35 @@ const signup = async (req, res, next) => {
         );
         return next(error);
     }
+    const file = req.file;
+    if (!file) {
+        return res.status(400).send("Please upload a file");
+    }
+    const MIME_TYPE_MAP = {
+        "image/png": "png",
+        "image/jpeg": "jpeg",
+        "image/jpg": "jpg",
+    };
+    const isValid = !!MIME_TYPE_MAP[file.mimetype];
+    if (!isValid) {
+        return res.status(400).send("Please upload a image");
+    }
+    let pathImage;
+    try {
+        pathImage = await uploadFirebase(file);
+    } catch (err) {
+        const error = new HttpError(
+            "Could not create image in to firebase, please try again",
+            500
+        );
+        console.log(err);
+        return next(error);
+    }
 
     const createdNewUser = new User({
         name,
         email,
-        image: req.file.path,
+        image: pathImage,
         password: hashedPassword,
         places: [],
     });

@@ -7,6 +7,7 @@ const HttpError = require("../models/http-error");
 const getCoordsForAddress = require("../util/location");
 const Place = require("../models/place");
 const User = require("../models/user");
+const { uploadFirebase } = require("../middleware/file-upload");
 
 const getPlaceById = async (req, res, next) => {
     const placeId = req.params.pid;
@@ -79,6 +80,30 @@ const createPlace = async (req, res, next) => {
     //     console.log("coordinates error", error);
     //     return next(error);
     // }
+    const file = req.file;
+    if (!file) {
+        return res.status(400).send("Please upload a file");
+    }
+    const MIME_TYPE_MAP = {
+        "image/png": "png",
+        "image/jpeg": "jpeg",
+        "image/jpg": "jpg",
+    };
+    const isValid = !!MIME_TYPE_MAP[file.mimetype];
+    if (!isValid) {
+        return res.status(400).send("Please upload a image");
+    }
+    let pathImage;
+    try {
+        pathImage = await uploadFirebase(file);
+    } catch (err) {
+        const error = new HttpError(
+            "Could not create image in to firebase, please try again",
+            500
+        );
+        console.log(err);
+        return next(error);
+    }
 
     const createdPlace = new Place({
         title,
@@ -88,7 +113,7 @@ const createPlace = async (req, res, next) => {
             lat: 10.8550427,
             lng: 106.785373,
         }, //change again coordinates
-        image: req.file.path,
+        image: pathImage,
         creator: req.userData.userId,
     });
 

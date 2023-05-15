@@ -7,10 +7,28 @@ const mongoose = require("mongoose");
 const placesRouter = require("./routers/places-routes");
 const usersRouter = require("./routers/users-routes");
 const HttpError = require("./models/http-error");
+const upload = require("./middleware/file-upload");
 
 const app = express();
 
-app.use(bodyParser.json()); // sử dụng dữ liệu dưới dạng json
+app.use(bodyParser.json());
+
+// app.post("/upload", upload.single("image"), (req, res) => {
+//     const file = req.file;
+//     if (!file) {
+//         return res.status(400).send("Please upload a file");
+//     }
+//     const MIME_TYPE_MAP = {
+//         "image/png": "png",
+//         "image/jpeg": "jpeg",
+//         "image/jpg": "jpg",
+//     };
+//     const isValid = !!MIME_TYPE_MAP[file.mimetype];
+//     if (!isValid) {
+//         return res.status(400).send("Please upload a image");
+//     }
+
+// });
 
 app.use("/uploads/images", express.static(path.join("uploads", "images"))); // thêm route sử dụng cho truy cập hình ảnh
 
@@ -24,6 +42,7 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
     next();
 });
+
 // các đường dẫn nên / bắt đầu là api để dễ dàng setup cho bên frontend và biết rằng đường dẫn đó là một api
 app.use("/api/places", placesRouter); // route sử dụng cho place
 app.use("/api/users", usersRouter); // route sử dụng cho user
@@ -33,18 +52,18 @@ app.use((req, res, next) => {
     throw error;
 });
 
-app.use((error, req, res, next) => {
-    if (req.file) {
-        fs.unlink(req.file.path, (err) => {
-            console.log(err);
-        }); //xóa file nhận được nếu bị lỗi
-    }
-    if (res.headerSent) {
-        return next(error);
-    }
-    res.status(error.code || 500);
-    res.json({ message: error.message || "An unknown error occurred!" });
-});
+// app.use((error, req, res, next) => {
+//     if (req.file) {
+//         fs.unlink(req.file.path, (err) => {
+//             console.log(err);
+//         }); //xóa file nhận được nếu bị lỗi
+//     }
+//     if (res.headerSent) {
+//         return next(error);
+//     }
+//     res.status(error.code || 500);
+//     res.json({ message: error.message || "An unknown error occurred!" });
+// });
 
 // kết nối với mongoodb nó sẽ trả về một promises sau khi kết nối thành công sẽ chạy server bằng app.listen
 mongoose
