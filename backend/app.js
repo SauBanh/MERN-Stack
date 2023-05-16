@@ -52,18 +52,18 @@ app.use((req, res, next) => {
     throw error;
 });
 
-// app.use((error, req, res, next) => {
-//     if (req.file) {
-//         fs.unlink(req.file.path, (err) => {
-//             console.log(err);
-//         }); //xóa file nhận được nếu bị lỗi
-//     }
-//     if (res.headerSent) {
-//         return next(error);
-//     }
-//     res.status(error.code || 500);
-//     res.json({ message: error.message || "An unknown error occurred!" });
-// });
+app.use((error, req, res, next) => {
+    // if (req.file) {
+    //     fs.unlink(req.file.path, (err) => {
+    //         console.log(err);
+    //     }); //xóa file nhận được nếu bị lỗi
+    // }
+    if (res.headerSent) {
+        return next(error);
+    }
+    res.status(error.code || 500);
+    res.json({ message: error.message || "An unknown error occurred!" });
+});
 
 // kết nối với mongoodb nó sẽ trả về một promises sau khi kết nối thành công sẽ chạy server bằng app.listen
 mongoose
