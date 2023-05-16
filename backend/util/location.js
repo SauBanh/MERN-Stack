@@ -27,7 +27,7 @@ async function getCoordsForAddress(address) {
             500
         );
         throw error;
-    }
+    } // thêm phần này
     return coordinates;
 }
 
