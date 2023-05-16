@@ -18,7 +18,16 @@ async function getCoordsForAddress(address) {
         );
         throw error;
     }
-    const coordinates = data.results[0].geometry.location;
+    let coordinates;
+    try {
+        coordinates = data.results[0].geometry.location;
+    } catch (err) {
+        const error = new HttpError(
+            "you have used up all the requests for the day. Please wait until tomorrow to continue using.",
+            500
+        );
+        throw error;
+    }
     return coordinates;
 }
 

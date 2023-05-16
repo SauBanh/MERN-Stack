@@ -73,13 +73,13 @@ const createPlace = async (req, res, next) => {
     }
     const { title, description, address } = req.body;
 
-    // let coordinates;
-    // try {
-    //     coordinates = await getCoordsForAddress(address);
-    // } catch (error) {
-    //     console.log("coordinates error", error);
-    //     return next(error);
-    // }
+    let coordinates;
+    try {
+        coordinates = await getCoordsForAddress(address);
+    } catch (error) {
+        console.log("coordinates error", error);
+        return next(error);
+    }
     const file = req.file;
     if (!file) {
         return res.status(400).send("Please upload a file");
@@ -109,10 +109,7 @@ const createPlace = async (req, res, next) => {
         title,
         description,
         address,
-        location: {
-            lat: 10.8550427,
-            lng: 106.785373,
-        }, //change again coordinates
+        location: coordinates, //change again coordinates
         image: pathImage,
         creator: req.userData.userId,
     });
